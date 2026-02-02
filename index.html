@@ -6,129 +6,426 @@
   <title>Joylen, Will you be my Valentine?</title>
 
   <style>
-    *{ box-sizing: border-box; margin:0; padding:0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; }
-
-    body{
-      height:100vh;
-      display:flex;
-      justify-content:center;
-      align-items:center;
-      overflow:hidden;
-      color:white;
+    :root{
+      --glass: rgba(0,0,0,.52);
+      --stroke: rgba(255,255,255,.14);
+      --text: rgba(255,255,255,.95);
+      --muted: rgba(255,255,255,.75);
+      --yes: #22c55e;
+      --no: #ef4444;
+      --accent: #ff5da2;
     }
 
+    *{ box-sizing:border-box; }
+    body{
+      margin:0;
+      height:100vh;
+      display:grid;
+      place-items:center;
+      overflow:hidden;
+      color:var(--text);
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    }
+
+    /* Background image */
     body::before{
       content:"";
       position:fixed;
       inset:0;
       background:url("photo.jpg") center/cover no-repeat;
-      filter: brightness(0.45) blur(2px);
+      filter: brightness(.45) blur(2px);
+      transform: scale(1.06);
+      z-index:-2;
+    }
+    /* Vignette */
+    body::after{
+      content:"";
+      position:fixed;
+      inset:0;
+      background: radial-gradient(circle at center, rgba(0,0,0,.05), rgba(0,0,0,.65));
       z-index:-1;
     }
 
-    .card{
-      background:rgba(0,0,0,0.55);
-      backdrop-filter: blur(8px);
-      padding:40px 30px;
-      border-radius:24px;
-      text-align:center;
-      width:min(560px,92vw);
-      box-shadow:0 20px 50px rgba(0,0,0,.4);
+    .wrap{
+      width:min(680px, 92vw);
+      padding: 18px;
     }
 
-    h1{ font-size:34px; margin-bottom:12px; }
+    .card{
+      background: var(--glass);
+      border: 1px solid var(--stroke);
+      border-radius: 26px;
+      padding: 34px 26px 24px;
+      text-align:center;
+      box-shadow: 0 22px 70px rgba(0,0,0,.48);
+      backdrop-filter: blur(10px);
+      position: relative;
+    }
 
-    p{ font-size:17px; line-height:1.6; }
+    .badge{
+      display:inline-flex;
+      gap:8px;
+      align-items:center;
+      padding: 8px 12px;
+      border: 1px solid rgba(255,255,255,.18);
+      border-radius: 999px;
+      font-weight: 700;
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 14px;
+      background: rgba(255,255,255,.06);
+    }
+
+    h1{
+      margin:0 0 10px;
+      font-size: clamp(26px, 4.2vw, 40px);
+      letter-spacing: .2px;
+    }
+
+    .type{
+      margin: 6px auto 0;
+      max-width: 520px;
+      font-size: 16.5px;
+      line-height: 1.65;
+      color: var(--muted);
+      min-height: 3.8em; /* keeps layout stable while typing */
+    }
 
     .btns{
-      margin-top:25px;
+      margin-top: 22px;
       display:flex;
       justify-content:center;
-      gap:16px;
+      gap: 14px;
+      flex-wrap:wrap;
     }
 
     button{
       border:0;
-      padding:14px 24px;
-      font-size:16px;
-      border-radius:50px;
-      font-weight:700;
       cursor:pointer;
+      padding: 14px 22px;
+      border-radius: 999px;
+      font-weight: 850;
+      font-size: 16px;
+      min-width: 150px;
+      box-shadow: 0 12px 24px rgba(0,0,0,.25);
+      transition: transform .12s ease, opacity .12s ease, filter .12s ease;
+      user-select:none;
     }
+    button:active{ transform: translateY(1px) scale(.99); }
 
-    #yesBtn{ background:#22c55e;color:white; }
-    #noBtn{ background:#ef4444;color:white; position:relative; }
+    #yesBtn{ background: var(--yes); color: white; }
+    #noBtn{ background: var(--no); color: white; position: relative; }
 
     .result{
       display:none;
-      margin-top:22px;
-      font-size:18px;
-      font-weight:700;
+      margin-top: 22px;
+      padding: 16px 14px;
+      background: rgba(255,255,255,.08);
+      border: 1px dashed rgba(255,255,255,.24);
+      border-radius: 18px;
+      font-size: 18px;
+      font-weight: 850;
+      line-height: 1.55;
     }
+    .result.show{ display:block; }
+
+    .promise{
+      display:none;
+      margin-top: 14px;
+      padding: 14px;
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,.16);
+      background: rgba(255,255,255,.06);
+      color: var(--muted);
+      line-height: 1.55;
+      font-size: 15px;
+    }
+    .promise.show{ display:block; }
 
     .footer{
-      margin-top:20px;
-      font-size:14px;
-      opacity:.8;
+      margin-top: 16px;
+      font-size: 13px;
+      color: rgba(255,255,255,.72);
+    }
+
+    /* Music controls */
+    .controls{
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      display:flex;
+      gap: 8px;
+      align-items:center;
+    }
+    .iconbtn{
+      min-width: auto;
+      padding: 10px 12px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.08);
+      border: 1px solid rgba(255,255,255,.14);
+      color: var(--text);
+      box-shadow: none;
+      font-weight: 800;
+      font-size: 13px;
+    }
+    .iconbtn:hover{ filter: brightness(1.12); }
+
+    input[type="range"]{
+      width: 92px;
+      accent-color: var(--accent);
+    }
+
+    /* Tap-to-start overlay */
+    .overlay{
+      position: fixed;
+      inset:0;
+      display:grid;
+      place-items:center;
+      background: rgba(0,0,0,.55);
+      backdrop-filter: blur(8px);
+      z-index: 99;
+      padding: 18px;
+    }
+    .overlayCard{
+      width:min(520px, 92vw);
+      background: rgba(255,255,255,.10);
+      border: 1px solid rgba(255,255,255,.18);
+      border-radius: 22px;
+      padding: 22px 18px;
+      text-align:center;
+      color: var(--text);
+      box-shadow: 0 20px 60px rgba(0,0,0,.55);
+    }
+    .overlayCard h2{
+      margin:0 0 8px;
+      font-size: 22px;
+    }
+    .overlayCard p{
+      margin:0 0 14px;
+      color: rgba(255,255,255,.78);
+      line-height: 1.5;
+      font-size: 14.5px;
+    }
+    .startBtn{
+      background: var(--accent);
+      color: white;
+      border:0;
+      padding: 14px 18px;
+      border-radius: 999px;
+      font-weight: 900;
+      font-size: 16px;
+      cursor:pointer;
+      box-shadow: 0 12px 26px rgba(0,0,0,.3);
+    }
+
+    /* Floating hearts */
+    .heart{
+      position: fixed;
+      left: 0;
+      top: 0;
+      transform: translate(-50%, -50%);
+      pointer-events:none;
+      font-size: 18px;
+      opacity: 1;
+      transition: transform 1.7s ease, opacity 1.7s ease;
+      z-index: 5;
+      filter: drop-shadow(0 8px 18px rgba(0,0,0,.25));
     }
   </style>
 </head>
 
 <body>
-
-<iframe width="0" height="0"
-src="https://www.youtube.com/embed/5Eqb_-j3FDA?autoplay=1&loop=1&playlist=5Eqb_-j3FDA"
-frameborder="0" allow="autoplay"></iframe>
-
-<div class="card">
-  <h1>Joylen, will you be my Valentine? 💘</h1>
-
-  <p>
-    Even though miles separate us,<br>
-    nothing can separate you from my heart.
-  </p>
-
-  <p>
-    Until I can hold you again,<br>
-    let this page ask what my heart wants to ask you…
-  </p>
-
-  <div class="btns">
-    <button id="yesBtn">Yes 💚</button>
-    <button id="noBtn">No ❤️</button>
+  <!-- Tap-to-start overlay (for reliable music on mobile) -->
+  <div class="overlay" id="overlay">
+    <div class="overlayCard">
+      <h2>One small surprise for Joylen 💖</h2>
+      <p>
+        Tap “Start” to open the page with music 🎶<br>
+        (Some browsers block autoplay until you tap once.)
+      </p>
+      <button class="startBtn" id="startBtn">Start 💘</button>
+    </div>
   </div>
 
-  <div class="result" id="result">
-    You just made me the happiest person alive 🥹💖<br><br>
-    Valentine’s Date Plan:<br>
-    Video call, same time, same smile, same love 💕<br>
-    And soon… a real dinner together ❤️
+  <!-- YouTube music (Surf Mesa - ILY). Starts after user taps Start. -->
+  <iframe
+    id="yt"
+    width="0"
+    height="0"
+    src="https://www.youtube.com/embed/5Eqb_-j3FDA?enablejsapi=1&autoplay=0&loop=1&playlist=5Eqb_-j3FDA"
+    frameborder="0"
+    allow="autoplay"
+    aria-hidden="true">
+  </iframe>
+
+  <div class="wrap">
+    <div class="card">
+      <div class="controls">
+        <button class="iconbtn" id="playPauseBtn">Play</button>
+        <input id="vol" type="range" min="0" max="100" value="60" />
+      </div>
+
+      <div class="badge">💌 Long distance, same heart</div>
+
+      <h1>Joylen, will you be my Valentine? 💘</h1>
+      <div class="type" id="type"></div>
+
+      <div class="btns">
+        <button id="yesBtn">Yes 💚</button>
+        <button id="noBtn">No ❤️</button>
+      </div>
+
+      <div class="result" id="result">
+        You just made me the happiest person alive 🥹💖<br><br>
+        Valentine’s Date Plan:<br>
+        Video call, same time, same smile, same love 💕<br>
+        And soon… a real dinner together ❤️
+      </div>
+
+      <div class="promise" id="promise">
+        I promise: even from far away, I’ll still be present —<br>
+        in your mornings, your nights, and every “I miss you” in between.
+      </div>
+
+      <div class="footer">Made with ❤️ by Lashon</div>
+    </div>
   </div>
 
-  <div class="footer">Made with ❤️ by Lashon</div>
-</div>
+  <script>
+    // ---------- Typewriter ----------
+    const lines = [
+      "Even though miles separate us, nothing can separate you from my heart.",
+      "So here’s my question… and my favorite answer 😌"
+    ];
+    const typeEl = document.getElementById("type");
+    let fullText = lines.join("\n");
+    let i = 0;
 
-<script>
-const yesBtn = document.getElementById("yesBtn");
-const noBtn  = document.getElementById("noBtn");
-const result = document.getElementById("result");
+    function typeWrite(){
+      if(i <= fullText.length){
+        const shown = fullText.slice(0, i).replaceAll("\n", "<br>");
+        typeEl.innerHTML = shown + '<span style="opacity:.7">|</span>';
+        i++;
+        setTimeout(typeWrite, 22);
+      } else {
+        typeEl.innerHTML = fullText.replaceAll("\n", "<br>");
+      }
+    }
 
-yesBtn.addEventListener("click", () => {
-  result.style.display = "block";
-  noBtn.disabled = true;
-  noBtn.style.opacity = "0.4";
-});
+    // ---------- Music controls via YouTube IFrame API ----------
+    // We use postMessage commands; basic, reliable control.
+    const yt = document.getElementById("yt");
+    const overlay = document.getElementById("overlay");
+    const startBtn = document.getElementById("startBtn");
+    const playPauseBtn = document.getElementById("playPauseBtn");
+    const vol = document.getElementById("vol");
 
-function moveNo(){
-  const x = Math.random() * (window.innerWidth - 120);
-  const y = Math.random() * (window.innerHeight - 60);
-  noBtn.style.position = "fixed";
-  noBtn.style.left = x + "px";
-  noBtn.style.top  = y + "px";
-}
-noBtn.addEventListener("mouseenter", moveNo);
-noBtn.addEventListener("click", moveNo);
-</script>
+    let isPlaying = false;
 
+    function ytCmd(func, args=[]) {
+      yt.contentWindow.postMessage(JSON.stringify({
+        event: "command",
+        func,
+        args
+      }), "*");
+    }
+
+    function startMusic(){
+      // Hide overlay, start typing and music
+      overlay.style.display = "none";
+      typeWrite();
+
+      ytCmd("playVideo");
+      ytCmd("setVolume", [Number(vol.value)]);
+      isPlaying = true;
+      playPauseBtn.textContent = "Pause";
+    }
+
+    startBtn.addEventListener("click", startMusic);
+
+    playPauseBtn.addEventListener("click", () => {
+      if(!isPlaying){
+        ytCmd("playVideo");
+        isPlaying = true;
+        playPauseBtn.textContent = "Pause";
+      } else {
+        ytCmd("pauseVideo");
+        isPlaying = false;
+        playPauseBtn.textContent = "Play";
+      }
+    });
+
+    vol.addEventListener("input", () => {
+      ytCmd("setVolume", [Number(vol.value)]);
+    });
+
+    // ---------- Yes / No logic ----------
+    const yesBtn = document.getElementById("yesBtn");
+    const noBtn  = document.getElementById("noBtn");
+    const result = document.getElementById("result");
+    const promise = document.getElementById("promise");
+
+    yesBtn.addEventListener("click", () => {
+      result.classList.add("show");
+      promise.classList.add("show");
+      noBtn.disabled = true;
+      noBtn.style.opacity = "0.38";
+      burstHearts(22);
+    });
+
+    function moveNo(){
+      const rect = noBtn.getBoundingClientRect();
+      const pad = 16;
+      const maxX = window.innerWidth - rect.width - pad;
+      const maxY = window.innerHeight - rect.height - pad;
+
+      noBtn.style.position = "fixed";
+      noBtn.style.left = (pad + Math.random() * (maxX - pad)) + "px";
+      noBtn.style.top  = (pad + Math.random() * (maxY - pad)) + "px";
+    }
+    noBtn.addEventListener("mouseenter", moveNo);
+    noBtn.addEventListener("click", moveNo);
+    noBtn.addEventListener("touchstart", (e) => { e.preventDefault(); moveNo(); }, {passive:false});
+
+    // ---------- Floating hearts ----------
+    const heartEmojis = ["💖","💘","💗","💞","💓","💕"];
+
+    function spawnHeart(x, y){
+      const h = document.createElement("div");
+      h.className = "heart";
+      h.textContent = heartEmojis[Math.floor(Math.random()*heartEmojis.length)];
+      h.style.left = x + "px";
+      h.style.top = y + "px";
+      h.style.fontSize = (16 + Math.random()*26) + "px";
+      document.body.appendChild(h);
+
+      requestAnimationFrame(() => {
+        const dx = (Math.random()*160 - 80);
+        const dy = -(220 + Math.random()*380);
+        const rot = (Math.random()*180 - 90);
+        h.style.transform = `translate(${dx}px, ${dy}px) rotate(${rot}deg)`;
+        h.style.opacity = "0";
+      });
+
+      setTimeout(() => h.remove(), 1700);
+    }
+
+    function burstHearts(n){
+      const cx = window.innerWidth / 2;
+      const cy = window.innerHeight / 2 + 40;
+      for(let k=0;k<n;k++){
+        setTimeout(() => spawnHeart(cx, cy), k*30);
+      }
+    }
+
+    // Optional: let user tap background to spawn a single heart
+    document.addEventListener("click", (e) => {
+      // Ignore clicks on buttons
+      const t = e.target;
+      if(t.tagName === "BUTTON" || t.id === "vol" || t.closest(".controls")) return;
+      if(overlay.style.display !== "none") return;
+      spawnHeart(e.clientX, e.clientY);
+    });
+  </script>
 </body>
 </html>
