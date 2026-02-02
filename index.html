@@ -183,7 +183,7 @@
       z-index: 20;
     }
 
-    /* Romantic Yes card */
+    /* Date plan card */
     .yesCard{
       display:none;
       margin-top: 18px;
@@ -222,13 +222,13 @@
       gap: 10px;
     }
 
-    .note{
+    .dateLine{
       padding: 12px 12px;
       border-radius: 16px;
       background: rgba(0,0,0,.20);
       border: 1px dashed rgba(255,255,255,.22);
       color: rgba(255,255,255,.92);
-      font-weight: 900;
+      font-weight: 950;
       line-height: 1.7;
       font-size: 16.5px;
     }
@@ -493,23 +493,21 @@
             <button id="yesBtn">Yes 💚</button>
           </div>
 
+          <!-- AFTER YES: Date plan text -->
           <div class="yesCard" id="yesCard">
             <div class="yesHeader">
-              <span>She said yes… and my heart just smiled 🥹💖</span>
+              <span>Valentine Date Plan 💘</span>
               <span class="pill">For Bunu • From Lashon</span>
             </div>
             <div class="yesBody">
-              <div class="note">
-                “I hate that distance keeps us apart. All I want is to wake up to your smile,
-                hear your voice without missing it the moment it ends, and hold your hand like
-                it’s the most normal thing in the world.”
-              </div>
+              <div class="dateLine">📞 1) Video call (no rushing)</div>
+              <div class="dateLine">🎶 2) Same song, same time (we vibe together)</div>
+              <div class="dateLine">🍿 3) Watch something together + tiny jokes</div>
+              <div class="dateLine">💬 4) “3 things I love about you” (both of us)</div>
+              <div class="dateLine">🌙 5) Sleep on call — just like we’re close</div>
+
               <div class="small">
-                Valentine plan: we call, we talk, we laugh, we stay on the line a little longer…
-                and I remind you (again) that I’m yours — even across distance.
-              </div>
-              <div class="small">
-                And when we finally meet, I’ll redo this moment in person.
+                And when we meet… I’m doing this properly in person.
               </div>
             </div>
           </div>
@@ -536,9 +534,7 @@
         <span>For you, Bunu 💖</span>
         <button class="closeBtn" id="closeModal">Close</button>
       </div>
-      <div class="modalBody" id="modalBody">
-        <!-- filled by JS -->
-      </div>
+      <div class="modalBody" id="modalBody"></div>
     </div>
   </div>
 
@@ -549,7 +545,7 @@
       yt.contentWindow.postMessage(JSON.stringify({ event:"command", func, args }), "*");
     }
 
-    // ---------- Photo auto-fix: tries common filenames and STOPS after first success ----------
+    // ---------- Photo auto-fix (stops after first success) ----------
     const photoImg = document.getElementById("photoImg");
     const imgFallback = document.getElementById("imgFallback");
     const imgHint = document.getElementById("imgHint");
@@ -567,12 +563,11 @@
         if (ok) {
           photoImg.src = `${name}?v=${Date.now()}`;
           imgFallback.classList.remove("show");
-          return; // stop after first success (prevents “disappearing”)
+          return;
         }
       }
       imgFallback.classList.add("show");
-      imgHint.innerHTML =
-        `Rename your image to <strong>photo.jpg</strong> and keep it in the repo root.`;
+      imgHint.innerHTML = `Rename your image to <strong>photo.jpg</strong> and keep it in the repo root.`;
     })();
 
     function testImage(src) {
@@ -590,13 +585,12 @@
 
     startBtn.addEventListener("click", () => {
       overlay.style.display = "none";
-      // play song after user tap
       ytCmd("setVolume", [65]);
       ytCmd("playVideo");
       placeNoButtonNearYes();
     });
 
-    // ---------- NO button positioning + hover move only ----------
+    // ---------- NO button hover-only movement ----------
     const yesBtn = document.getElementById("yesBtn");
     const btns = document.getElementById("btns");
     const noBtn  = document.getElementById("noBtn");
@@ -634,7 +628,7 @@
     }
     noBtn.addEventListener("mouseenter", moveNoSmooth);
 
-    // ---------- Effects: hearts + fireworks for 4s then fade out ----------
+    // ---------- Effects 4s then fade out ----------
     const heartsLayer = document.getElementById("heartsLayer");
     const canvas = document.getElementById("fx");
     const ctx = canvas.getContext("2d");
@@ -737,13 +731,12 @@
       }, 4000);
     }
 
-    // ---------- Secret message popup ----------
+    // ---------- Secret message popup (your separate message) ----------
     const secretBtn = document.getElementById("secretBtn");
     const modal = document.getElementById("modal");
     const closeModal = document.getElementById("closeModal");
     const modalBody = document.getElementById("modalBody");
 
-    // Your “separate message” you asked to pop up
     const separateMessage =
       "I hate that distance keeps us apart. I just wish this distance never existed — " +
       "because all I want is to see your smile, hear your voice, and hold your hands every day.";
@@ -765,21 +758,14 @@
     const yesCard = document.getElementById("yesCard");
 
     yesBtn.addEventListener("click", () => {
-      // remove YES button area
       btns.style.display = "none";
-
-      // disable + hide NO
       noBtn.disabled = true;
       noBtn.style.opacity = "0";
       noBtn.style.pointerEvents = "none";
 
-      // show romantic card
       yesCard.classList.add("show");
-
-      // show tiny heart reveal button
       secretBtn.classList.add("show");
 
-      // celebration
       startCelebration4s();
     });
   </script>
